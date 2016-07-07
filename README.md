@@ -21,7 +21,7 @@ Go programs start in function `main` of package `main`.
 
 Source code from other packages is parsed for declarations via the import statement at the beginning of
 each go source code file.
-The <a href="https://golang.org/pkg/fmt/" target="_blank">fmt</a>package implements formatted I/O.
+The <a href="https://golang.org/pkg/fmt/" target="_blank">fmt</a> package implements formatted I/O.
 The <a href="https://golang.org/pkg/time/" target="_blank">time</a> package provides functionality for
 measuring and desplaying time.
 
@@ -124,7 +124,7 @@ in a list. The `return` uses the value stored in the specified name.
 The return type of `ReadInts()` is a
 <a href="https://golang.org/doc/effective_go.html#slices" target="_blank">slice</a> of integers.
 Slices use array-like syntax, but are not fixed size.
-A slice can grow by using <a href="" target="_blank">append() to add an element to its end.
+A slice can grow by using <a href="" target="_blank">append()</a> to add an element to its end.
 
 Note also that the `for` statement does not require parentheses. It is used in the C/Java-like 3-part form or
 like a C/Java `while` with just a condition. Go does not have a `while` keyword.
