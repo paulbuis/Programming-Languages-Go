@@ -228,6 +228,22 @@ These stacks are "segmented" meaning they do not require large contiguous blocks
 instead consisting of a linked structure of chunks of memory.
 This allows many simultaneous goroutines to be active without consuming lots of memory to support them.
 
+Here is an example run of this program:
+```
+Enter integers, one per line, terminate with blank line    
+producer/consumer launched                                                                                                 
+1
+sum= 1                                               
+2                                          
+sum= 3                                               
+4                                          
+sum= 7
+
+average =  2.3333333333333335
+```
+
+Pay attention to the sequence of input and outputs illustrated to
+and observe that concurrent execution is really happening.
 
 ## Kata 3
 _Recursively compute factorial_
