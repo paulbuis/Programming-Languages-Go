@@ -19,8 +19,30 @@ func main() {
 
 Go programs start in function `main` of package `main`.
 
-Source code from other packages is parsed for declarations via the import statement at the beginning of each go source code file.
+Source code from other packages is parsed for declarations via the import statement at the beginning of
+each go source code file.
+The <a href="https://golang.org/pkg/fmt/" target="_blank">fmt</a>package implements formatted I/O.
+The <a href="https://golang.org/pkg/time/" target="_blank">time</a> package provides functionality for
+measuring and desplaying time.
 
+The grammar for Go says it uses semicolons to terminate statements. However, if a newline comes after
+a token that could end a satement, a semicolon is automatically inserted, so idiomatic Go code uses
+very few semicolons, typically only in `for` statements.
+
+To compile and link this program, if it were in the file `kata0.go`, use the command
+```bash
+go build kata0.go
+```
+This should result in an executable named `kata0` in the same directory as the source code file.
+To run this in a Linux environment, use the command
+```bash
+./kata0
+```
+
+Try running and compiling a Go program in an cloud hosted IDE at
+<a href="http://www.tutorialspoint.com/execute_golang_online.php" target="_blank">TutorialsPoint CodingGround</a>
+:warning: Warning: The page for TutorialsPoint CodingGround can be slow to appear. A Docker container needs to
+be launched on a server in India.
 
 ## Kata 1
 _Read in 3 integers and print their average_
@@ -99,11 +121,22 @@ Here we see an example of defining and calling functions.
 One way to describe the value returned by a function is shown here. Both a name and a type are specified
 in a list. The `return` uses the value stored in the specified name.
 
+The return type of `ReadInts()` is a
+<a href="https://golang.org/doc/effective_go.html#slices" target="_blank">slice</a> of integers.
+Slices use array-like syntax, but are not fixed size.
+A slice can grow by using <a href="" target="_blank">append() to add an element to its end.
+
 Note also that the `for` statement does not require parentheses. It is used in the C/Java-like 3-part form or
 like a C/Java `while` with just a condition. Go does not have a `while` keyword.
 
+The rule about automatic semicolon insertion at the end of a line that could potentially be complete forces
+the curly brace to be on the same line as the `for` keyword, otherwise the automattically inserted semicolon
+would create an empty `for` loop followed by a block of statments. Before sharing code with anyone else, it
+is normal for Go programmers to use the `go fmt` command to put Go code in a standard format, including standard
+use of indentation and other whitespace.
+
 Pay careful attention to the form of the return value of `Scanf`. It is returning a 
-[tuple](https://en.wikipedia.org/wiki/Tuple). The first value in
+<a href="https://en.wikipedia.org/wiki/Tuple" target="_blank">tuple</a>. The first value in
 the tuple is the number of values successfully read. The second value in the tuple is of type `Error` with
 the value of `nil` indicating no error. Returning a tuple with the last value being of type `Error` is a Go idiom.
 This allows the first part of the tuple to be unrelated to success or failure, with no special values needing
@@ -182,7 +215,8 @@ Since a function may have multiple `return` statements, being able to use `defer
 activity only needs to be specified once.
 
 This particular style of using a goroutine to send values to a channel to another function consuming those values with
-a `for`/`range` construct is how Go does [_*generators*_](https://en.wikipedia.org/wiki/Generator_(computer_programming))
+a `for`/`range` construct is how Go does
+<a href="https://en.wikipedia.org/wiki/Generator_(computer_programming)" target="_blank">generators</a>
 (Python and C# use the `yield` keyword to construct generators). Generators are not part of the Java 8 language or standard
 library.
 
@@ -267,10 +301,10 @@ Without tuple assignment, an extra temporary variable would need to be introduce
 
 The subtle thing is that the inner function uses variables that are local to the
 outer function. This makes the inner function
-a [_*closure*_](https://en.wikipedia.org/wiki/Closure_(computer_programming)).
+a <a href="https://en.wikipedia.org/wiki/Closure_(computer_programming)" target="_blank">closure</a>.
 It uses these
 variables even after the outer function has returned, indicating that the
-[stack frame / activation record](https://en.wikipedia.org/wiki/Call_stack#ACTIVATION-RECORD)
+<a href="https://en.wikipedia.org/wiki/Call_stack#ACTIVATION-RECORD" target="_blank">stack frame / activation record</a>
 in which they reside has persisted. These values, however,
 are not global to the whole program, package, or file and another instance of
 them would be created if `closureFib()` were invoked again.
@@ -320,3 +354,16 @@ func memoFib() func(uint) uint {
 	return fib
 }
 ```
+
+This implementation of the Kata uses the more common recursive implementation of the algorithm
+to compute the n<sup>th</sup> Fibonacci number. Typcially, this algorithm is very inefficient
+due to repeated computations of the same previous value. This code uses a technique called
+memoization to save previous results so they can be looked up in a table after they are
+first computed. The closure has access to the lookup table which is local to the function
+in which it is nested.
+
+Not only does this speed the computation relative to the traditional recursive algorithm, but
+if the closure is invoked a second time with the same argument, the result is returned immediately
+by a table lookup.
+
+Any "pure" function can be memoized to trade space for time.
