@@ -11,6 +11,10 @@ func main() {
 	fmt.Printf("\nAverage: %6.3g\n", ave)
 }
 
+// ReadInts reads a sequence of integers from standard input,
+// one integer per line
+// until an error occurs (e.g., a blank line)
+// and returns the sequence in a slice
 func ReadInts() (result []int) {
 	var item int
 	nRead, err := fmt.Scanf("%d\n", &item)
@@ -21,6 +25,8 @@ func ReadInts() (result []int) {
 	return
 }
 
+// AveInts takes a slice of integers and return their mean.
+// Will return NaN if slice is empty
 func AveInts(items []int) (result float64) {
 	len := len(items)
 	sum := 0
