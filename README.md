@@ -383,3 +383,178 @@ if the closure is invoked a second time with the same argument, the result is re
 by a table lookup.
 
 Any "pure" function can be memoized to trade space for time.
+
+## Stack implementations
+
+```Go
+package stack
+
+import (
+	"container/list"
+	"errors"
+)
+
+type Stack interface {
+	Push(int)
+	Pop() (int, error)
+	Peek() (int, error)
+}
+
+type SliceStack struct {
+	s []int
+}
+
+func NewSliceStack() SliceStack {
+	return SliceStack{s: make([]int, 0, 1)}
+}
+
+func (ss *SliceStack) Push(item int) {
+	ss.s = append(ss.s, item)
+}
+
+func (ss *SliceStack) Pop() (int, error) {
+	if len(ss.s) == 0 {
+		return 0, errors.New("empty")
+	}
+	top := ss.s[len(ss.s)-1]
+	ss.s = ss.s[:len(ss.s)-1]
+	return top, nil
+}
+
+func (ss *SliceStack) Peek() (int, error) {
+	if len(ss.s) == 0 {
+		return 0, errors.New("empty")
+	}
+	return ss.s[len(ss.s)-1], nil
+}
+
+type ListStack struct {
+	pList *list.List
+}
+
+func NewListStack() ListStack {
+	return ListStack{pList: list.New()}
+
+}
+
+func (ls *ListStack) Push(value int) {
+	ls.pList.PushFront(value)
+}
+
+func (ls *ListStack) Pop() (int, error) {
+	frontElement := ls.pList.Front()
+	if frontElement == nil {
+		return 0, errors.New("empty")
+	}
+	result := frontElement.Value.(int)
+	ls.pList.Remove(frontElement)
+	return result, nil
+}
+
+func (ls *ListStack) Peek() (int, error) {
+	frontElement := ls.pList.Front()
+	if frontElement == nil {
+		return 0, errors.New("empty")
+	}
+	return frontElement.Value.(int), nil
+}
+```
+
+This is the first example of using a package other than `main`. All of the source for each
+package needs to be in a separate directory, so all of the source code for a package
+is in the same directory (all by itself).
+
+The package will be imported as `github.com/paulbuis/stack` so this source file, named `stack.go`,
+should be in `$GOPATH/src/github.com/paulbuis/stack`.
+
+On a command line in that directory, the package can be compiled with the command
+```bash
+go build stack.go
+```
+
+If successful, the package needs to be installed as a library in `$GOPATH/pkg/$GOARCH/github.com/paulbuis/stack` where
+`$GOARCH` represents the OS/HW architecture for which the package is being compiled. This is done (after the build step) with the command
+```bash
+go install github.com/paulbuis/stack
+```
+
+The file contains an `interface` named Stack and two `struct` types that data to implement this abstract
+data type.
+Note that the names of the fields are lowercase. This makes them only available to functions in the same
+package where the struct is being defined and is similar to the notion of `private` in
+languages that use that keyword.
+
+For each concrete data type implementing the Stack interface, there is a function that intitializes
+and returns a value representing an empty stack. There are also methods that implement each of the
+methods declared in the interface. These functions all have uppercase names which allow them to be
+invoked from other packages.
+
+The thing that seems paricularly odd to C++/C#/Java programmers with the linked list code is that Go doesn't have "generic" types.
+Hence, when retrieving a value from the list, a type assertion is made at runtime, much like had to be done
+in Java before "generics" where added to the language.
+
+Technically, Go is not "Object oridented" because it does not implement inheritance. It does, however, allow
+for encapsulation by using lower-case names in seperate package and allow polymorphism via functions that take
+arguments declared to be interfaces.
+
+Importantly, the types that implement the interface don't need to declare the fact. When the struct is passed
+to a function expecting something thate implements the interface, the compiler checks that the struct has
+the needed methods. This is referred to a "structural" type check rather than "nominal" (meaning that a
+shared "name" is used) type check.
+
+##stackdemo
+```Go
+package main
+
+import (
+	"fmt"
+	"github.com/paulbuis/stack"
+)
+
+func main() {
+	fmt.Println("trying a SliceStack")
+	st0 := stack.NewSliceStack()
+	useStack(&st0)
+
+	fmt.Println("trying a ListStack")
+	st1 := stack.NewListStack()
+	useStack(&st1)
+
+}
+
+func useStack(s stack.Stack) {
+	s.Push(1)
+	s.Push(2)
+	val, err := s.Peek()
+	if err == nil {
+		fmt.Println(val)
+	} else {
+		return
+	}
+
+	val, err = s.Pop()
+	if err == nil {
+		fmt.Println(val)
+	} else {
+		return
+	}
+	val, err = s.Pop()
+	if err == nil {
+		fmt.Println(val)
+	}
+}
+```
+
+Here is a demonstration of the use of the separately compiled stack type. Note that the import statement
+uses a path prefixed with `github.com/paulbuis` which would normally mean that the package had been installed
+with a command such as 
+
+```
+go get github.com/paulbuis/stack
+```
+
+This command would clone the repository into `$GOPATH/src/github.com/paulbuis/stack` and do the `go build` and `go install` steps automatically.
+In the process, if the source in the repository contained imports of other uninstalled packages, their
+source would be automatically downloaded, compiled, and installed, recursively.
+Note that in order to use a package, its source must be available to the compiler, not just the compiled code in the package library.
+Its source is also looked for in $GOROOT (where the standard library packages are found) and $GOPATH and parsed to perform type checking on the packages that use it.
