@@ -563,8 +563,16 @@ with a command such as
 go get github.com/paulbuis/stack
 ```
 
-This command would clone the repository into `$GOPATH/src/github.com/paulbuis/stack` and do the `go build` and `go install` steps automatically.
+This command would clone the repository into `$GOPATH/src/github.com/paulbuis/stack` and do the
+`go build` and `go install` steps automatically.
 In the process, if the source in the repository contained imports of other uninstalled packages, their
 source would be automatically downloaded, compiled, and installed, recursively.
-Note that in order to use a package, its source must be available to the compiler, not just the compiled code in the package library (is this really true???).
-Its source is also looked for in $GOROOT (where the standard library packages are found) and $GOPATH and parsed to perform type checking on the packages that use it.
+Note that in order to use a package, the compiler's type checker by default requires that the package be compiled
+into a libarary and retreives type infomation related to identifiers in the package from the compiled library in the package library.
+Environment variables $GOROOT (where the standard library/libraries are located)
+and $GOPATH are used to locate the library for the packages. The dependency graph between package libraries is a directed acyclic graph.
+In some other langauges, the dependency can be cyclic and type information is not available in the compiled library,
+remaining in source code form which may be out of sync with the compiled library used at link-time. Go and languages like it that bundle
+type information for the compiler along with code for the linker prevent a whole category of errors that can occur late in the
+development cycle and be hard to track down in traditional implementations of languages like C.
+
