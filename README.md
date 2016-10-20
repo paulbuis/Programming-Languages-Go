@@ -145,8 +145,8 @@ in efficient implementation of function call/return and simpler semantics.
 
 ### Level 1
 _Use producer-consumer model:_  
-+producer reads integers
-+consumer computes average
+-producer reads integers
+-consumer computes average
   
 ```go
 package main
@@ -196,7 +196,8 @@ The built-in `make` function is used to construct built-in, non-primitive types 
 Here it is being used to construct two unbuffered channels, one to transmit integers and the other for floating point numbers.
 The keyword `var` is used in conjunction with initializations involving `make` rather than the `:=` operator.
 
-The `go` keyword launches a function in a separate thread. Go refers to these as _*goroutines*_.
+The `go` keyword launches a function as a separate "task." Tasks may run in separate threads.
+The Go runtime schedules tasks in available threads.  Go refers to these as _*goroutines*_. Note that
 
 A function parameter with a `<-chan` indicates the function can only read from the channel. A value is extracted from
 a channel an assigned to a variable with the `<-` operator being used instead of a `=` operator, with the channel on the
@@ -227,6 +228,15 @@ Each goroutine will have its own stack.
 These stacks are "segmented" meaning they do not require large contiguous blocks of memory,
 instead consisting of a linked structure of chunks of memory.
 This allows many simultaneous goroutines to be active without consuming lots of memory to support them.
+
+The number of active threads used to support goroutines is normally controlled by the GOMAXPROCS environment variable.
+It can also be controlled by using the GOMAXPROCS function in the package named "runtime." The function runtime.NumCPU()
+can be used to query the number of logical CPUS ("cores") available. Note that the number of active threads does not include
+threads that are blocked doing I/O or reading/writing from a channel.
+If the number of active tasks exceeds the number of available active threads, the Go language runtime
+is responsible for figuring out how to share threads across tasks.
+It is questionalbe practice to set GOMAXPROCS larger than NumCPU, since that will require the OS to timeslice threads over CPU cores
+which will incur additional context swtiching overhead.
 
 Here is an example run of this program:
 ```
@@ -556,5 +566,5 @@ go get github.com/paulbuis/stack
 This command would clone the repository into `$GOPATH/src/github.com/paulbuis/stack` and do the `go build` and `go install` steps automatically.
 In the process, if the source in the repository contained imports of other uninstalled packages, their
 source would be automatically downloaded, compiled, and installed, recursively.
-Note that in order to use a package, its source must be available to the compiler, not just the compiled code in the package library.
+Note that in order to use a package, its source must be available to the compiler, not just the compiled code in the package library (is this really true???).
 Its source is also looked for in $GOROOT (where the standard library packages are found) and $GOPATH and parsed to perform type checking on the packages that use it.
